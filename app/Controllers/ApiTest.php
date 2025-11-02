@@ -5,44 +5,70 @@ use CodeIgniter\Controller;
 
 class ApiTest extends Controller {
 
-    private $api_key = 'N0dpxSF7n9ZzQWlKR7PTMw==89CmXknSEHwbmZrQ'; // 🔒 Replace with your real API Ninjas key
+    private $api_key = 'N0dpxSF7n9ZzQWlKR7PTMw==89CmXknSEHwbmZrQ'; 
 
-    // public function __construct() {
-    //     parent::__construct();
-    // }
+// public function __construct() {
+//     parent::__construct();
+// }
 
-    public function qrcode($student_id = 'SIS2025-001') {
-        $api_url = "https://api.api-ninjas.com/v1/qrcode?data=" . urlencode($student_id);
-        $ch = curl_init($api_url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Api-Key: ' . $this->api_key));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+    // ApiNinjas broken image output
+// public function qrcode($student_id = 'SIS2025-001')
+// {
+//     $api_url = "https://api.api-ninjas.com/v1/qrcode?data=" . rawurlencode($student_id);
 
-        if ($status_code == 200 && $response) {
-            header('Content-Type: image/png');
-            echo $response;
-        } else {
-            header('Content-Type: application/json');
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Failed to generate QR Code.',
-                'http_code' => $status_code
-            ]);
-        }
+//     $ch = curl_init($api_url);
+//     curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Api-Key: ' . $this->api_key]);
+//     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//     $response = curl_exec($ch);
+//     $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+//     curl_close($ch);
+
+
+//     return $this->response->setJSON([
+//         'status_code' => $status_code,
+//         'length'      => strlen($response),
+//         'snippet'     => substr($response, 0, 200)
+//     ]);
+// }
+
+    // alternative to ApiNinjas
+    public function qrcode($student_id = 'SIS2025-002')
+    {
+        $url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . rawurlencode($student_id);
+
+        $response = file_get_contents($url);
+
+        return $this->response
+            ->setHeader('Content-Type', 'image/png')
+            ->setBody($response);
     }
 
-    public function weather() {
-        $api_url = "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m";
+
+
+
+    public function weather($city = 'Manila') {
+        // available cities
+        $city_coords = [
+            'Manila' => ['lat' => 14.5995, 'lon' => 120.9842],
+            'Cebu' => ['lat' => 10.3157, 'lon' => 123.8854],
+            'Davao' => ['lat' => 7.1907, 'lon' => 125.4553],
+            'Tokyo' => ['lat' => 35.6828, 'lon' => 139.759],
+            'London' => ['lat' => 51.5072, 'lon' => -0.1276],
+        ];
+
+        if (!array_key_exists($city, $city_coords)) {
+            return $this->response->setStatusCode(400)
+                ->setJSON(['error' => 'City not supported. Try Manila, Cebu, Davao, Tokyo, or London.']);
+        }
+
+        $lat = $city_coords[$city]['lat'];
+        $lon = $city_coords[$city]['lon'];
+
+        $api_url = "https://api.open-meteo.com/v1/forecast?latitude={$lat}&longitude={$lon}&current_weather=true";
 
         $ch = curl_init();
         curl_setopt_array($ch, [
             CURLOPT_URL => $api_url,
-            CURLOPT_HTTPHEADER => [
-                // 'X-Api-Key: ' . $this->api_key,
-                'Accept: application/json'
-            ],
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 10
         ]);
@@ -52,20 +78,19 @@ class ApiTest extends Controller {
         $error = curl_error($ch);
         curl_close($ch);
 
-        header('Content-Type: application/json');
-
         if ($status_code == 200 && $response) {
-            echo $response;
+            return $this->response->setJSON(json_decode($response, true));
         } else {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Failed to fetch weather data.',
-                'http_code' => $status_code,
-                'curl_error' => $error ?: 'None',
-                'endpoint_used' => $api_url
-            ]);
+            return $this->response->setStatusCode($status_code ?: 500)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Failed to fetch weather data.',
+                    'curl_error' => $error ?: 'None',
+                    'endpoint' => $api_url
+                ]);
         }
     }
+
 
 
     public function iplookup($ip = '8.8.8.8') {
