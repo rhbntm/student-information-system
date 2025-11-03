@@ -1,5 +1,5 @@
 <?php
-namespace App\Controllers;  // ✅ required for CI4
+namespace App\Controllers;  
 
 use CodeIgniter\Controller;
 
@@ -7,9 +7,6 @@ class ApiTest extends Controller {
 
     private $api_key = 'N0dpxSF7n9ZzQWlKR7PTMw==89CmXknSEHwbmZrQ'; 
 
-// public function __construct() {
-//     parent::__construct();
-// }
 
     // ApiNinjas broken image output
 // public function qrcode($student_id = 'SIS2025-001')

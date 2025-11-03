@@ -8,7 +8,7 @@ class StudentController extends ResourceController
     protected $format = 'json';
 
     public function index()
-    {
+    {   
         return $this->respond($this->model->findAll());
     }
 

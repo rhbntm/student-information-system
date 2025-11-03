@@ -7,17 +7,14 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
-// Students resource controller
-$routes->resource('students', ['controller' => 'StudentController']);
+$routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->resource('students', ['controller' => 'StudentController']);
+    $routes->get('weather', 'ApiTest::weather');
+    $routes->get('weather/(:any)', 'ApiTest::weather/$1');
+    $routes->get('qrcode', 'ApiTest::qrcode');
+    $routes->get('qrcode/(:any)', 'ApiTest::qrcode/$1');
+    $routes->get('iplookup', 'ApiTest::iplookup');
+    $routes->get('iplookup/(:any)', 'ApiTest::iplookup/$1');
+    $routes->get('quotes', 'ApiTest::quotes');
+});
 
-// API Test routes
-$routes->get('api/weather', 'ApiTest::weather');
-$routes->get('api/weather/(:any)', 'ApiTest::weather/$1');
-
-$routes->get('api/qrcode', 'ApiTest::qrcode');
-$routes->get('api/qrcode/(:any)', 'ApiTest::qrcode/$1');
-
-$routes->get('api/iplookup', 'ApiTest::iplookup');
-$routes->get('api/iplookup/(:any)', 'ApiTest::iplookup/$1');
-
-$routes->get('api/quotes', 'ApiTest::quotes');
