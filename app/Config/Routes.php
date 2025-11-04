@@ -16,5 +16,6 @@ $routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->get('iplookup', 'ApiTest::iplookup');
     $routes->get('iplookup/(:any)', 'ApiTest::iplookup/$1');
     $routes->get('quotes', 'ApiTest::quotes');
+    $routes->resource('courses', ['controller' => 'CourseController']);
 });
 
