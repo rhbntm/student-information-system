@@ -6,34 +6,24 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
 
+helper('cors'); // import our helper globally
+
 class Cors implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*';
+        set_cors_headers();
 
-        header("Access-Control-Allow-Origin: $origin");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-        header("Access-Control-Allow-Credentials: true");
-
-        // Handle preflight (OPTIONS) request
-        if ($request->getMethod(true) === 'OPTIONS') {
-            $response = service('response');
-            $response->setStatusCode(200);
-            $response->setBody('OK');
-            $response->send();
-            exit; // stop further processing
+        // Handle preflight requests immediately
+        if ($request->getMethod() === 'options') {
+            http_response_code(200);
+            exit;
         }
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*';
-        $response->setHeader('Access-Control-Allow-Origin', $origin);
-        $response->setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-        $response->setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->setHeader('Access-Control-Allow-Credentials', 'true');
+        set_cors_headers(); // ensure all responses have correct headers
         return $response;
     }
 }
