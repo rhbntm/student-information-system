@@ -7,3 +7,4 @@ class AttendanceModel extends Model {
     protected $primaryKey = 'attendance_id';
     protected $allowedFields = ['student_id', 'section_id', 'date', 'status', 'remarks'];
 }
+    

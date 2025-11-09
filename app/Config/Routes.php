@@ -29,6 +29,7 @@ $routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->resource('departments', ['controller' => 'DepartmentController']);
     $routes->resource('attendance', ['controller' => 'AttendanceController']);
     $routes->resource('sections', ['controller' => 'SectionController']);
+    $routes->resource('grades', ['controller' => 'GradeController']);
 
 });
 
