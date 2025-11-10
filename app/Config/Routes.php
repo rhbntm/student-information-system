@@ -19,7 +19,7 @@ $routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->get('iplookup', 'ApiTest::iplookup');
     $routes->get('iplookup/(:any)', 'ApiTest::iplookup/$1');
     $routes->get('quotes', 'ApiTest::quotes');
-
+$routes->get('gpa/(:num)', 'GradeController::studentGPA/$1');
     // cors test route
     $routes->get('cors-test', 'Home::corsTest');
 
@@ -31,5 +31,8 @@ $routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->resource('sections', ['controller' => 'SectionController']);
     $routes->resource('grades', ['controller' => 'GradeController']);
 
+    $routes->resource('payments', ['controller' => 'PaymentController']);
+    $routes->resource('balances', ['controller' => 'StudentBalanceController']);
+    $routes->get('balances/student/(:num)', 'StudentBalanceController::getByStudent/$1');
 });
 

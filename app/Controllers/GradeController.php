@@ -51,4 +51,26 @@ class GradeController extends ResourceController
         }
         return $this->failNotFound("Grade record not found or could not be deleted");
     }
-}
+
+    public function studentGPA($student_id)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('academic_records');
+        $builder->selectAvg('gpa', 'average_gpa');
+        $builder->where('student_id', $student_id);
+        $query = $builder->get();
+        $result = $query->getRow();
+
+        // ✅ Detect missing or null data
+        if (!$result || $result->average_gpa === null) {
+            return $this->failNotFound("No GPA data found for student ID {$student_id}");
+        }
+
+        return $this->respond([
+            'student_id'  => $student_id,
+            'average_gpa' => round($result->average_gpa, 2)
+        ]);
+    }
+
+
+    }
