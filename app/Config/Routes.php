@@ -14,8 +14,12 @@ $routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
     // api test routes
     $routes->get('weather', 'ApiTest::weather');
     $routes->get('weather/(:any)', 'ApiTest::weather/$1');
-    $routes->get('qrcode', 'ApiTest::qrcode');
+    // QR Code routes (FULL FIX)
+    $routes->get('qrcode', 'ApiTest::qrcode');          // allow GET
+    $routes->post('qrcode', 'ApiTest::qrcode');         // allow POST
+    $routes->options('qrcode', 'Home::options');        // handle preflight
     $routes->get('qrcode/(:any)', 'ApiTest::qrcode/$1');
+
     $routes->get('iplookup', 'ApiTest::iplookup');
     $routes->get('iplookup/(:any)', 'ApiTest::iplookup/$1');
     $routes->get('quotes', 'ApiTest::quotes');

@@ -29,16 +29,60 @@ class ApiTest extends Controller {
 // }
 
     // alternative to ApiNinjas
-    public function qrcode($student_id = 'SIS2025-002')
+    public function qrcode($data = null)
     {
-        $url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . rawurlencode($student_id);
+        // Allowed frontend origins
+        $allowedOrigins = [
+            'http://localhost:5173',
+            'http://127.0.0.1:5173',
+        ];
 
-        $response = file_get_contents($url);
+        // Handle OPTIONS preflight
+        if ($this->request->getMethod() === 'options') {
+            $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+            if (in_array($origin, $allowedOrigins)) {
+                return $this->response
+                    ->setHeader('Access-Control-Allow-Origin', $origin)
+                    ->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                    ->setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+                    ->setHeader('Access-Control-Allow-Credentials', 'true')
+                    ->setStatusCode(200);
+            }
+        }
+
+        // Read input text (supports POST and GET)
+        $text = $this->request->getPost('data') ?? $data ?? 'SIS2025-001';
+
+        // QR Server API
+        $url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . rawurlencode($text);
+
+        $response = @file_get_contents($url);
+
+        if ($response === false) {
+            return $this->response
+                ->setStatusCode(500)
+                ->setJSON([
+                    'error' => 'Failed to fetch QR from QRServer API.',
+                    'input' => $text
+                ]);
+        }
+
+        // Apply correct CORS
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if (in_array($origin, $allowedOrigins)) {
+            $this->response->setHeader('Access-Control-Allow-Origin', $origin);
+        }
 
         return $this->response
+            ->setHeader('Access-Control-Allow-Credentials', 'true')
+            ->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            ->setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
             ->setHeader('Content-Type', 'image/png')
             ->setBody($response);
     }
+
+
+
 
 
 
