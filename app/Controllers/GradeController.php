@@ -72,5 +72,39 @@ class GradeController extends ResourceController
         ]);
     }
 
+    public function submitGrades()
+{
+        $data = $this->request->getJSON(true);
+
+        if (!$data) {
+            return $this->fail("Invalid or missing JSON", 400);
+        }
+
+        // Required fields
+        $rules = [
+            'student_id' => 'required|numeric',
+            'course_id'  => 'required|numeric',
+            'grade'      => 'required',
+            'gpa'        => 'required|decimal'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $model = new \App\Models\GradeModel();
+
+        // Insert new grade
+        $inserted = $model->insert($data);
+
+        if (!$inserted) {
+            return $this->fail("Failed to submit grade", 500);
+        }
+
+        return $this->respondCreated([
+            'message'   => 'Grade submitted successfully',
+            'record_id' => $inserted
+        ]);
+    }
 
     }

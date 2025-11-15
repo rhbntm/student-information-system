@@ -39,4 +39,40 @@ class AttendanceController extends ResourceController
         }
         return $this->failNotFound('Record not found');
     }
+        public function submitAttendance()
+    {
+        $data = $this->request->getJSON(true);
+
+        if (!$data) {
+            return $this->fail("Invalid or missing JSON", 400);
+        }
+
+        // required fields
+        $rules = [
+            'student_id' => 'required|numeric',
+            'section_id' => 'required|numeric',
+            'date'       => 'required',
+            'status'     => 'required',
+            'remarks'    => 'permit_empty'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $model = new \App\Models\AttendanceModel();
+
+        // insert entry
+        $inserted = $model->insert($data);
+
+        if (!$inserted) {
+            return $this->fail("Failed to record attendance", 500);
+        }
+
+        return $this->respondCreated([
+            'message' => 'Attendance submitted successfully',
+            'attendance_id' => $inserted
+        ]);
+    }
+
 }
